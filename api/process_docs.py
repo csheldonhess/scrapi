@@ -44,7 +44,7 @@ def process_raw(doc, source, doc_id, filetype):
             logger.log(e)
             return None
 
-    return "Success"
+    return timestamp
 
 
 def process(doc, timestamp):
@@ -55,7 +55,8 @@ def process(doc, timestamp):
         Format specification:
         {
             'title': {PROJECT_TITLE},
-            'contributors: [{PROJECT_CONTRIBUTORS}],
+            'contributors: {["email": EMAIL,
+                            "full_name": PROJECT AUTHOR]},
             'properties': {
                 {VALID_NODE_PROPERTY}: {NODE_PROPERTY_VALUE},
             },
@@ -69,7 +70,7 @@ def process(doc, timestamp):
         return None
 
     # Collision detection
-    conflict = collision_detector.detect(doc)
+    conflict = collision_detector.detect(str(doc))
     if conflict:
         logger.warn("Document with id {0} and timestamp {1} from source {2} already found in database".format(doc['id'], timestamp, doc['source']))
 
@@ -95,5 +96,8 @@ def process(doc, timestamp):
     properties = doc['properties']
     for property in properties.keys():
         node[property] = properties[property]
+
+    if conflict:
+        logger.warn("Document with id {0} and timestamp {1} from source {2} already found in database".format(doc['id'], timestamp, doc['source']))
 
     return json.dumps(node, sort_keys=True, indent=4)
